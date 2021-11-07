@@ -41,7 +41,7 @@ public class CvController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Cv>> search(@RequestParam("keyword") String keyword) {
+    public ResponseEntity<List<Cv>> search(@RequestParam("search") String keyword) {
         return ResponseEntity.ok(cvSearchService.searchCvs(keyword));
     }
 
