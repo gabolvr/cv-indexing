@@ -15,6 +15,7 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.elasticsearch.client.ml.inference.preprocessing.Multi;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,9 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/cvs")
 public class CvController {
+
+//    @Autowired
+//    private Environment environment;
     
     private CvSearchService cvSearchService;
 
@@ -38,6 +42,9 @@ public class CvController {
 
     @GetMapping
     public ResponseEntity<List<Cv>> search(@RequestParam("search") String keyword) {
+//        for (String profileName : environment.getActiveProfiles()) {
+//            System.out.println("Currently active profile - " + profileName);
+//        }
         return ResponseEntity.ok(cvSearchService.searchCvs(keyword));
     }
 
