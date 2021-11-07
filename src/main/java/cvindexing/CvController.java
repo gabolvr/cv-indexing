@@ -15,14 +15,10 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.elasticsearch.client.ml.inference.preprocessing.Multi;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -43,6 +39,12 @@ public class CvController {
     @GetMapping
     public ResponseEntity<List<Cv>> search(@RequestParam("search") String keyword) {
         return ResponseEntity.ok(cvSearchService.searchCvs(keyword));
+    }
+
+    @GetMapping("/id/{id}")
+    public ResponseEntity<Cv> findCvById(@PathVariable("id") String id) {
+        Cv cv = cvSearchService.findCvById(id);
+        return new ResponseEntity<>(cv, cv != null ? HttpStatus.OK : HttpStatus.NOT_FOUND);
     }
 
 //    @PostMapping

@@ -1,5 +1,6 @@
 package cvindexing;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,10 @@ public class CvSearchService {
     
     public void createProductIndex(final Cv cv) {
         cvRepository.save(cv);
+    }
+
+    public Cv findCvById(final String id) {
+        return cvRepository.findById(id).orElse(null);
     }
     
 }
