@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
-import org.apache.pdfbox.text.PDFTextStripperByArea;
-
+import org.apache.poi.hwpf.HWPFDocument;
+import org.apache.poi.hwpf.extractor.WordExtractor;
 
 @RestController
 @RequestMapping("/api/cvs")
@@ -53,6 +53,14 @@ public class CvController {
         System.out.println(pdfContent);
     }
 
+    @PostMapping(consumes = "application/msword")
+    public void addCvDoc(@RequestBody byte[] doc) throws IOException {
+        String pdfContent = getContentFromDoc(new ByteArrayInputStream(doc));
+        cvSearchService.createProductIndex(new Cv(pdfContent));
+        System.out.println("addCvPdf");
+        System.out.println(pdfContent);
+    }
+
     @PostMapping
     public void addCvFile(@RequestParam("cv") MultipartFile[] files) throws IOException {
         System.out.println("addCvFile: " + files.length + " files");
@@ -63,11 +71,13 @@ public class CvController {
             System.out.println(file.getOriginalFilename());
             System.out.println(file.getContentType() == "application/pdf");
             if (file.getContentType().equals("application/pdf")) {
-                System.out.println("Loading PDF...");
-                PDDocument document = Loader.loadPDF(file.getInputStream());
-                PDFTextStripper stripper = new PDFTextStripper();
-                String text = stripper.getText(document);
-                System.out.println(text);
+                String pdfContent = getContentFromPdf(file.getInputStream());
+                cvSearchService.createProductIndex(new Cv(pdfContent));
+            }
+            if (file.getContentType().equals("application/msword")) {
+                String docContent = getContentFromDoc(file.getInputStream());
+                cvSearchService.createProductIndex(new Cv(docContent));
+                System.out.println(docContent);
             }
         }
     }
@@ -76,5 +86,11 @@ public class CvController {
         PDDocument document = Loader.loadPDF(pdf);
         PDFTextStripper stripper = new PDFTextStripper();
         return stripper.getText(document);
+    }
+
+    private String getContentFromDoc(InputStream doc) throws IOException {
+        HWPFDocument document = new HWPFDocument(doc);
+        WordExtractor extractor = new WordExtractor(document);
+        return extractor.getText();
     }
 }

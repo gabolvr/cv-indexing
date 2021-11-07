@@ -7,10 +7,10 @@ import org.springframework.data.elasticsearch.annotations.Document;
 public class Cv {
     @Id
     private String id;
-    private String data;
+    private String content;
 
-    public Cv(String data) {
-        this.data = data;
+    public Cv(String content) {
+        this.content = content;
     }
 
     public String getId() {
@@ -21,11 +21,11 @@ public class Cv {
         this.id = id;
     }
 
-    public String getData() {
-        return this.data;
+    public String getContent() {
+        return this.content;
     }
 
-    public void setData(String data) {
-        this.data = data;
+    public void setContent(String content) {
+        this.content = content;
     }
 }
