@@ -16,11 +16,11 @@ public class CvSearchService {
         return cvRepository.searchKeywordInCv(keyword);
     }
 
-    public void createProductIndexBulk(final List<Cv> cvs) {
+    public void createIndexBulk(final List<Cv> cvs) {
         cvRepository.saveAll(cvs);
     }
     
-    public void createProductIndex(final Cv cv) {
+    public void createIndex(final Cv cv) {
         cvRepository.save(cv);
     }
 

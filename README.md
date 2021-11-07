@@ -1,6 +1,10 @@
 # cv-indexing
 
-## build
+### team
+- Gabriel OLIVEIRA MARTINS
+- Ian RODRIGUES DULEBA
+
+### build
 
 - dev
 ```shell script
@@ -12,13 +16,13 @@
 ./mvnw clean package -Pprod
 ```
 
-## run
+### run
 - dev
 ```shell script
-java -jar target/cv-indexing-0.0.1-SNAPSHOT.jar
+java -jar target/cv-indexing-1.0.jar
 ````
 
-- prod
+- prod (if build was in dev)
 ```shell script
-java -jar -Dspring.profiles.active=prod target/cv-indexing-0.0.1-SNAPSHOT.jar
+java -jar -Dspring.profiles.active=prod target/cv-indexing-1.0.jar
 ```

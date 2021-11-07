@@ -3,8 +3,8 @@ package cvindexing;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -13,13 +13,10 @@ import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
-import org.elasticsearch.client.ml.inference.preprocessing.Multi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,9 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/cvs")
 public class CvController {
-
-//    @Autowired
-//    private Environment environment;
 
     Logger logger = LoggerFactory.getLogger(CvController.class);
     
@@ -46,15 +40,13 @@ public class CvController {
 
     @GetMapping
     public ResponseEntity<List<Cv>> search(@RequestParam("search") String keyword) {
-//        for (String profileName : environment.getActiveProfiles()) {
-//            System.out.println("Currently active profile - " + profileName);
-//        }
-        logger.info("Log Test");
+        logger.info("Searching CVs with keyword \"{}\"", keyword);
         return ResponseEntity.ok(cvSearchService.searchCvs(keyword));
     }
 
     @GetMapping("/id/{id}")
     public ResponseEntity<Cv> findCvById(@PathVariable("id") String id) {
+        logger.info("Searching CVs with ID {}", id);
         Cv cv = cvSearchService.findCvById(id);
         return new ResponseEntity<>(cv, cv != null ? HttpStatus.OK : HttpStatus.NOT_FOUND);
     }
@@ -67,54 +59,53 @@ public class CvController {
 
     @PostMapping(consumes = TYPE_PDF)
     public void addCvPdf(@RequestBody byte[] pdf) throws IOException {
+        logger.info("Adding CV with PDF format");
         String pdfContent = getContentFromPdf(new ByteArrayInputStream(pdf));
-        cvSearchService.createProductIndex(new Cv(pdfContent));
-        System.out.println("addCvPdf");
-        System.out.println(pdfContent);
+        cvSearchService.createIndex(new Cv(pdfContent));
     }
 
     @PostMapping(consumes = TYPE_DOC)
     public void addCvDoc(@RequestBody byte[] doc) throws IOException {
+        logger.info("Adding CV with DOC format");
         String docContent = getContentFromDoc(new ByteArrayInputStream(doc));
-        cvSearchService.createProductIndex(new Cv(docContent));
-        System.out.println("addCvDoc");
-        System.out.println(docContent);
+        cvSearchService.createIndex(new Cv(docContent));
     }
 
     @PostMapping(consumes = TYPE_DOCX)
     public void addCvDocx(@RequestBody byte[] docx) throws IOException {
+        logger.info("Adding CV with DOCX format");
         String docxContent = getContentFromDocx(new ByteArrayInputStream(docx));
-        cvSearchService.createProductIndex(new Cv(docxContent));
-        System.out.println("addCvDocx");
-        System.out.println(docxContent);
+        cvSearchService.createIndex(new Cv(docxContent));
     }
 
     @PostMapping
     public void addCvFile(@RequestParam("cv") MultipartFile[] files) throws IOException {
-        System.out.println("addCvFile: " + files.length + " files");
+        List<Cv> cvs = new ArrayList<>();
         for (MultipartFile file : files) {
-            System.out.println(file.getName());
-            System.out.println(file.getContentType());
-            System.out.println(file.getResource());
-            System.out.println(file.getOriginalFilename());
-            System.out.println(file.getContentType() == "application/pdf");
             switch (file.getContentType()) {
                 case TYPE_PDF:
+                    logger.info("Adding CV {}", file.getOriginalFilename());
                     String pdfContent = getContentFromPdf(file.getInputStream());
-                    cvSearchService.createProductIndex(new Cv(pdfContent));
+                    cvs.add(new Cv(pdfContent));
+                    cvSearchService.createIndex(new Cv(pdfContent));
                     break;
                 case TYPE_DOC:
+                    logger.info("Adding CV {}", file.getOriginalFilename());
                     String docContent = getContentFromDoc(file.getInputStream());
-                    cvSearchService.createProductIndex(new Cv(docContent));
-                    System.out.println(docContent);
+                    cvs.add(new Cv(docContent));
+                    cvSearchService.createIndex(new Cv(docContent));
                     break;
                 case TYPE_DOCX:
+                    logger.info("Adding CV {}", file.getOriginalFilename());
                     String docxContent = getContentFromDocx(file.getInputStream());
-                    cvSearchService.createProductIndex(new Cv(docxContent));
-                    System.out.println(docxContent);
+                    cvs.add(new Cv(docxContent));
+                    cvSearchService.createIndex(new Cv(docxContent));
                     break;
+                default:
+                    logger.error("CV {} has invalid format and was not added", file.getOriginalFilename());
             }
         }
+        cvSearchService.createIndexBulk(cvs);
     }
 
     private String getContentFromPdf(InputStream pdf) throws IOException {

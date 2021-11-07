@@ -11,6 +11,5 @@ public interface CvRepository extends ElasticsearchRepository<Cv, String> {
     
     // @Query("{\"bool\": {\"must\": [{\"fuzzy\": {\"data\": \"?0\"}}]}}")
     @Query("{\"bool\": {\"must\": [{\"match\": {\"content\": \"?0\"}}]}}")
-    // @Query("{\"bool\": {\"must\": [{\"wildcard\": {\"data\": \"*?0*\"}}]}}")
     List<Cv> searchKeywordInCv(String keyword);
 }
