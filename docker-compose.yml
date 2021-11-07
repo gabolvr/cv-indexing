@@ -1,0 +1,78 @@
+#version: '3'
+#services:
+#  elastic-search:
+#    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.1
+#    container_name: cv-es
+#    ports:
+#      - 9200:9200
+#      - 9300:9300
+#    environment:
+#      - discovery.type=single-node
+#    networks:
+#      - elastic
+#  kibana:
+#    image: docker.elastic.co/kibana/kibana:7.15.1
+#    container_name: cv-kib
+#    ports:
+#      - 5601:5601
+#    environment:
+#      - ELASTICSEARCH_HOSTS=http://cv-es:9200
+#    networks:
+#      - elastic
+#  logstash:
+#    image: docker.elastic.co/logstash/logstash:7.15.1
+#    container_name: cv-logstash
+#    ports:
+#      - 5000:5000
+#      - 5044:5044
+#      - 9600:9600
+#    volumes:
+#      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+#    environment:
+#      - XPACK_MONITORING_ELASTICSEARCH_HOSTS=http://cv-es:9200
+#      - XPACK_MONITORING_ENABLED=true
+#    networks:
+#      - elastic
+#
+#networks:
+#  elastic:
+#    driver: bridge
+version: '2.2'
+services:
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.1
+    container_name: es01
+    environment:
+      - discovery.type=single-node
+    ports:
+      - 9200:9200
+      - 9300:9300
+    networks:
+      - elastic
+
+  kib01:
+    image: docker.elastic.co/kibana/kibana:7.15.1
+    container_name: kib01
+    ports:
+      - 5601:5601
+    environment:
+      ELASTICSEARCH_HOSTS: http://es01:9200
+    networks:
+      - elastic
+
+#  logstash:
+#    image: docker.elastic.co/logstash/logstash:7.15.1
+#    container_name: logstash
+#    ports:
+#      - 5000:5000
+#    volumes:
+#      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+#    command: logstash -f /config-dir/logstash.conf
+#    networks:
+#      - elastic
+#    depends_on:
+#      - es01
+
+networks:
+  elastic:
+    driver: bridge

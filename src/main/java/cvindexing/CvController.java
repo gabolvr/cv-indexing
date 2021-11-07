@@ -14,6 +14,8 @@ import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.elasticsearch.client.ml.inference.preprocessing.Multi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,8 @@ public class CvController {
 
 //    @Autowired
 //    private Environment environment;
+
+    Logger logger = LoggerFactory.getLogger(CvController.class);
     
     private CvSearchService cvSearchService;
 
@@ -45,6 +49,7 @@ public class CvController {
 //        for (String profileName : environment.getActiveProfiles()) {
 //            System.out.println("Currently active profile - " + profileName);
 //        }
+        logger.info("Log Test");
         return ResponseEntity.ok(cvSearchService.searchCvs(keyword));
     }
 
