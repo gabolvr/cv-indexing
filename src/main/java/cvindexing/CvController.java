@@ -51,12 +51,6 @@ public class CvController {
         return new ResponseEntity<>(cv, cv != null ? HttpStatus.OK : HttpStatus.NOT_FOUND);
     }
 
-//    @PostMapping
-//    public void addCv(@RequestBody String data) {
-//        cvSearchService.createProductIndex(new Cv(data));
-//        System.out.println("addCv");
-//    }
-
     @PostMapping(consumes = TYPE_PDF)
     public void addCvPdf(@RequestBody byte[] pdf) throws IOException {
         logger.info("Adding CV with PDF format");
@@ -87,25 +81,24 @@ public class CvController {
                     logger.info("Adding CV {}", file.getOriginalFilename());
                     String pdfContent = getContentFromPdf(file.getInputStream());
                     cvs.add(new Cv(pdfContent));
-                    cvSearchService.createIndex(new Cv(pdfContent));
                     break;
                 case TYPE_DOC:
                     logger.info("Adding CV {}", file.getOriginalFilename());
                     String docContent = getContentFromDoc(file.getInputStream());
                     cvs.add(new Cv(docContent));
-                    cvSearchService.createIndex(new Cv(docContent));
                     break;
                 case TYPE_DOCX:
                     logger.info("Adding CV {}", file.getOriginalFilename());
                     String docxContent = getContentFromDocx(file.getInputStream());
                     cvs.add(new Cv(docxContent));
-                    cvSearchService.createIndex(new Cv(docxContent));
                     break;
                 default:
-                    logger.error("CV {} has invalid format and was not added", file.getOriginalFilename());
+                    logger.error("CV {} has invalid type {} and was not added", file.getOriginalFilename(), file.getContentType());
             }
         }
-        cvSearchService.createIndexBulk(cvs);
+        if (!cvs.isEmpty()) {
+            cvSearchService.createIndexBulk(cvs);
+        }
     }
 
     private String getContentFromPdf(InputStream pdf) throws IOException {
